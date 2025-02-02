@@ -3,7 +3,6 @@ package com.ccd.service;
 import com.ccd.exception.InvalidEntityException;
 import com.ccd.model.Employee;
 import com.ccd.repository.EmployeeRepository;
-import com.ccd.service.EmailService;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +35,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 			if (employee.getStatus() == null || employee.getStatus().isEmpty()) {
 				employee.setStatus("active");
 			}
+			employee.setAvailabilityStatus("available");
 
 			// Generate default password based on account type, DOB, and name length
 			if (employee.getDefaultPassword() == null || employee.getDefaultPassword().isEmpty()) {
@@ -69,7 +69,6 @@ public class EmployeeServiceImpl implements EmployeeService {
 			System.out.println(e);
 		}
 		return employeeRepository.save(employee);
-
 	}
 
 	public boolean replacePasswordIfValid(long empId, String defaultPassword, String newPassword) {

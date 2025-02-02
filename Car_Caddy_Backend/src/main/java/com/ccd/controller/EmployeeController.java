@@ -3,11 +3,7 @@ package com.ccd.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +19,6 @@ import com.ccd.service.EmployeeService;
 
 import jakarta.validation.Valid;
 
-import java.security.PublicKey;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -42,18 +37,6 @@ public class EmployeeController {
 
 	@Autowired
 	private EmailService emailService;
-
-//    @PostMapping("/registerEmployee") 
-//    public ResponseEntity<Map<String, Object>> addEmployee(@RequestBody Employee employee) {
-//        Employee savedEmployee = employeeService.addEmployee(employee);
-//
-//        // Create a filtered response
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("employeeId", savedEmployee.getEmployeeId());
-//        response.put("defaultPassword", savedEmployee.getDefaultPassword());
-//
-//        return new ResponseEntity<>(response, HttpStatus.CREATED); // 201 Created
-//    }
 
 	@PostMapping("/registerEmployee")
 	public ResponseEntity<Object> addEmployee(@Valid @RequestBody Employee employee, BindingResult result) {
@@ -218,10 +201,11 @@ public class EmployeeController {
 		// Extract employee data
 		String name = employeeData.get("name");
 		String email = employeeData.get("email");
+		System.out.println(email);
 		String dob = employeeData.get("dob");
 		String id = employeeData.get("id");
 		System.out.println("=====" + id);
-//		int empid = Integer.parseInt(id);
+		// int empid = Integer.parseInt(id);
 		long empid = Long.parseLong(id);
 
 		// Find the employee in the database (example assumes email as unique
@@ -238,4 +222,13 @@ public class EmployeeController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employee not found!");
 	}
 
+	@PostMapping("/updateEmployeeAvailability/{employeeId}/{availability}")
+	public void handleEmployeeAvailability(@PathVariable long employeeId, @PathVariable String availability) {
+		Optional<Employee> optionalEmployee = employeeRepository.findById(employeeId);
+		if (optionalEmployee.isPresent()) {
+			Employee employee = optionalEmployee.get();
+			employee.setAvailabilityStatus(availability);
+			employeeRepository.save(employee);
+		}
+	}
 }

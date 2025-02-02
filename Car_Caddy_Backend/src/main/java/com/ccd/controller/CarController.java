@@ -3,7 +3,6 @@ package com.ccd.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -142,10 +141,20 @@ public class CarController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
-	
-	 @GetMapping("/{carId}")
-	    public Car getCarDetails(@PathVariable Long carId) throws InvalidEntityException {
-	        return carService.getCarDetails(carId);
-	    }
+
+	@GetMapping("/{carId}")
+	public Car getCarDetails(@PathVariable Long carId) throws InvalidEntityException {
+		return carService.getCarDetails(carId);
+	}
+
+	@PostMapping("/updateCarAvailability/{carId}/{availability}")
+	public void handleCarAvailability(@PathVariable long carId, @PathVariable String availability) {
+		Optional<Car> car = carRepository.findById(carId);
+		if (car.isPresent()) {
+			Car updatedCar = car.get();
+			updatedCar.setStatus(availability);
+			carRepository.save(updatedCar);
+		}
+	}
 
 }

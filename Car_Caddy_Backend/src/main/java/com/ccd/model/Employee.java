@@ -10,9 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -53,6 +51,8 @@ public class Employee {
 	@NotNull
 	@NotEmpty(message = "Provide value for status")
 	private String status; // active or inactive
+
+	private String availabilityStatus = "available";
 
 	@OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
 	@JsonIgnore
@@ -134,6 +134,14 @@ public class Employee {
 		this.status = status;
 	}
 
+	public String getAvailabilityStatus() {
+		return availabilityStatus;
+	}
+
+	public void setAvailabilityStatus(String availabilityStatus) {
+		this.availabilityStatus = availabilityStatus;
+	}
+
 	public List<Rent_Booking> getBookings() {
 		return bookings;
 	}
@@ -169,7 +177,6 @@ public class Employee {
 
 	public Employee() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 }

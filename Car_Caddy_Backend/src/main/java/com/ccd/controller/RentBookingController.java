@@ -80,18 +80,4 @@ public class RentBookingController {
 	public ResponseEntity<Customer> getCustomerById(@PathVariable int id) throws InvalidEntityException {
 		return new ResponseEntity<>(customerService.findByCustomerId(id), HttpStatus.OK);
 	}
-
-//    @GetMapping("cars/{carId}/employee")
-//    public ResponseEntity<Employee> getEmployeeByCar(@PathVariable int carId) throws InvalidEntityException {
-//        Car car = carService.getCarById(carId);
-//        if (car == null) {
-//            throw new InvalidEntityException("Car not found");
-//        }
-//        Employee emp = car.getEmp();
-//        if (emp == null) {
-//            throw new InvalidEntityException("No employee assigned to this car");
-//        }
-//        return new ResponseEntity<>(emp, HttpStatus.OK);
-//    }
-
 }
