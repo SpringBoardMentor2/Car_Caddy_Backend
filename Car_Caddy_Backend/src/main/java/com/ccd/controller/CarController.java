@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -30,16 +31,17 @@ public class CarController {
 	private CarRepository carRepository;
 
 	@PostMapping("/add")
-	public ResponseEntity<?> addCar(@Valid @RequestBody Car car, BindingResult bindingResult)
-			throws InvalidFieldException {
-		if (bindingResult.hasErrors()) {
-			Map<String, String> errors = new HashMap<>();
-			bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-			throw new InvalidFieldException(errors);
-		}
-		Car savedCar = carService.addCar(car);
-		return new ResponseEntity<>(savedCar, HttpStatus.CREATED);
+	public ResponseEntity<?> addCar(@Valid @RequestBody Car car, BindingResult result) {
+	    if (result.hasErrors()) {
+	        Map<String, String> errors = new HashMap<>();
+	        for (FieldError error : result.getFieldErrors()) {
+	            errors.put(error.getField(), error.getDefaultMessage());
+	        }
+	        return ResponseEntity.badRequest().body(errors);
+	    }
+	    return ResponseEntity.ok(carService.addCar(car));
 	}
+
 
 	@PostMapping("/selectRole")
 	public ResponseEntity<?> handleRoleSelection(@RequestParam("role") String role) {
@@ -100,23 +102,23 @@ public class CarController {
 	}
 
 	@GetMapping("/viewByVehicleID")
-	public ResponseEntity<?> findCarByVehicleID(@RequestParam(required = false) long vehicleId) {
-		if (vehicleId == 0) {
+	public ResponseEntity<?> findCarByVehicleID(@RequestParam(required = false) long carId) {
+		if (carId == 0) {
 			Map<String, String> errors = new HashMap<>();
 			errors.put("vehicleId", "Vehicle ID cannot be blank.");
 			return ResponseEntity.badRequest().body(errors);
 		}
 
-		Optional<Car> car = carRepository.findById(vehicleId);
+		Optional<Car> car = carRepository.findById(carId);
 		if (car.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No car found with Vehicle ID " + vehicleId);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No car found with Vehicle ID " + carId);
 		}
 
 		return ResponseEntity.ok(car.get());
 	}
 
-	@PutMapping("/update/{vehicleId}")
-	public ResponseEntity<?> updateCarDetails(@PathVariable int vehicleId, @Valid @RequestBody Car car,
+	@PutMapping("/update/{carId}")
+	public ResponseEntity<?> updateCarDetails(@PathVariable int carId, @Valid @RequestBody Car car,
 			BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			Map<String, String> errors = new HashMap<>();
@@ -124,19 +126,19 @@ public class CarController {
 			return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
 		}
 
-		Car updatedCar = carService.updateCarDetails(vehicleId, car);
+		Car updatedCar = carService.updateCarDetails(carId, car);
 		if (updatedCar == null) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Car with ID " + vehicleId + " not found.");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Car with ID " + carId + " not found.");
 		}
 
 		return new ResponseEntity<>(updatedCar, HttpStatus.OK);
 	}
 
-	@DeleteMapping("/delete/{vehicleId}")
-	public ResponseEntity<String> deleteCar(@PathVariable int vehicleId) {
+	@DeleteMapping("/delete/{carId}")
+	public ResponseEntity<String> deleteCar(@PathVariable int carId) {
 		try {
-			carService.deleteCarById(vehicleId);
-			return ResponseEntity.ok("Car with Vehicle ID " + vehicleId + " deleted successfully.");
+			carService.deleteCarById(carId);
+			return ResponseEntity.ok("Car with Vehicle ID " + carId + " deleted successfully.");
 		} catch (IllegalArgumentException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}

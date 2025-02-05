@@ -54,39 +54,35 @@ public class UserController {
 	}
 
 	// Admin registration
-	@PostMapping("/registerAdmin")
-	public ResponseEntity<?> registerAdmin(@Valid @RequestBody User user, BindingResult bindingResult) {
-		if (bindingResult.hasErrors()) {
-			Map<String, String> errors = new HashMap<>();
-			bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-			return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+		@PostMapping("/registerasAdmin")
+		public ResponseEntity<?> registerAdmin(@RequestParam("username") String username, 
+		                                       @RequestParam("password") String password) {
+		    if (userService.registerAdmin(username, password)) {
+		        return new ResponseEntity<>("Admin registered successfully.", HttpStatus.CREATED);
+		    }
+		    return new ResponseEntity<>("Admin registration failed. Username might already exist.", HttpStatus.BAD_REQUEST);
 		}
 
-		if (userService.registerAdmin(user.getUsername(), user.getPassword())) {
-			return new ResponseEntity<>("Admin registered successfully.", HttpStatus.CREATED);
-		}
-		return new ResponseEntity<>("Admin registration failed. Username might already exist.", HttpStatus.BAD_REQUEST);
-	}
 
-	// Admin login
-	@PostMapping("/adminLogin")
-	public ResponseEntity<?> adminLogin(@RequestParam("username") String username,
-			@RequestParam("password") String password, HttpSession session) {
-		if (username == null || username.isBlank() || password == null || password.isBlank()) {
-			Map<String, String> errors = new HashMap<>();
-			if (username == null || username.isBlank())
-				errors.put("username", "Username is required.");
-			if (password == null || password.isBlank())
-				errors.put("password", "Password is required.");
-			return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-		}
+		// Admin login
+		@PostMapping("/adminasLogin")
+		public ResponseEntity<?> adminLogin(@RequestParam("username") String username,
+				@RequestParam("password") String password, HttpSession session) {
+			if (username == null || username.isBlank() || password == null || password.isBlank()) {
+				Map<String, String> errors = new HashMap<>();
+				if (username == null || username.isBlank())
+					errors.put("username", "Username is required.");
+				if (password == null || password.isBlank())
+					errors.put("password", "Password is required.");
+				return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+			}
 
-		if (userService.loginAsAdmin(username, password)) {
-			session.setAttribute("role", "admin");
-			return new ResponseEntity<>("Admin logged in successfully.", HttpStatus.OK);
+			if (userService.loginAsAdmin(username, password)) {
+				session.setAttribute("role", "admin");
+				return new ResponseEntity<>("Admin logged in successfully.", HttpStatus.OK);
+			}
+			return new ResponseEntity<>("Invalid admin credentials.", HttpStatus.UNAUTHORIZED);
 		}
-		return new ResponseEntity<>("Invalid admin credentials.", HttpStatus.UNAUTHORIZED);
-	}
 
 	// Fetch all users
 	@GetMapping("/getAllUsers")
@@ -144,7 +140,7 @@ public class UserController {
 
 		// Redirect to the frontend's logout loading page
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Location", "http://localhost:8777/auth/logoutLoading"); // Frontend URL
+		headers.set("Location", "http://localhost:8080/auth/logoutLoading"); // Frontend URL
 		return new ResponseEntity<>(headers, HttpStatus.FOUND); // HTTP 302 Redirect
 	}
 
@@ -153,7 +149,7 @@ public class UserController {
 	public ResponseEntity<Void> logoutLoadingPage() {
 		// Redirect to the frontend role selection page after showing loading page
 		HttpHeaders headers = new HttpHeaders();
-		headers.set("Location", "http://localhost:8777/auth/selectRole"); // Frontend URL
+		headers.set("Location", "http://localhost:8080/admin"); // Frontend URL
 		return new ResponseEntity<>(headers, HttpStatus.FOUND); // HTTP 302 Redirect
 	}
 

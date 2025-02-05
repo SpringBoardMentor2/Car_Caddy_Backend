@@ -68,25 +68,39 @@ public class CarServiceImpl implements CarService {
 	}
 
 	public Car addCar(Car car) {
-		Car savedCar = carRepository.save(car);
+	    // Save the car entity first
+	    Car savedCar = carRepository.save(car);
 
-		// Prepare email content
-		String htmlContent = "<html>" + "<body>" + "<h2>Vehicle Registration Successful</h2>" + "<p>Dear User,</p>"
-				+ "<p>Your vehicle has been added successfully to our system.</p>" + "<p><strong>Vehicle ID:</strong> "
-				+ savedCar.getCarId() + "</p>" + "<img src='cid:carImage' style='width:400px;height:auto;'>"
-				+ "<p>Thank you for using our services!</p>" + "</body>" + "</html>";
+	    // Ensure the email is present
+	    if (savedCar.getEmail() != null && !savedCar.getEmail().isEmpty()) {
+	        // Prepare email content
+	        String htmlContent = "<html>" +
+	                "<body>" +
+	                "<h2>Vehicle Registration Successful</h2>" +
+	                "<p>Dear User,</p>" +
+	                "<p>Your vehicle has been added successfully to our system.</p>" +
+	                "<p><strong>Vehicle ID:</strong> " + savedCar.getCarId() + "</p>" +
+	                "<img src='cid:carImage' style='width:400px;height:auto;'>" +
+	                "<p>Thank you for using our services!</p>" +
+	                "</body>" +
+	                "</html>";
 
-		try {
-			emailService.sendHtmlEmailWithImage("basu.debmusic20@gmail.com", // Replace with the user's email
-					"Vehicle Registration Successful", htmlContent, "images/car_success.jpg", // Replace with your image
-																								// path in the classpath
-					"carImage" // Content ID for the image
-			);
-		} catch (MessagingException e) {
-			System.err.println("Failed to send email: " + e.getMessage());
-		}
+	        try {
+	            emailService.sendHtmlEmailWithImage(
+	                savedCar.getEmail(), // Send to the registered user's email
+	                "Vehicle Registration Successful",
+	                htmlContent,
+	                "images/car_success.jpg", // Path to the image
+	                "carImage" // Content ID for embedding
+	            );
+	        } catch (MessagingException e) {
+	            System.err.println("Failed to send email: " + e.getMessage());
+	        }
+	    } else {
+	        System.err.println("Email is missing, skipping email notification.");
+	    }
 
-		return savedCar;
+	    return savedCar;
 	}
 
 	public List<Car> getAllCars() {
@@ -119,11 +133,11 @@ public class CarServiceImpl implements CarService {
 		return carRepository.findByVehicleType(vehicleType);
 	}
 
-	public Car updateCarDetails(long vehicleId, Car updatedCar) {
-		Car existingCar = carRepository.findById(vehicleId).orElse(null);
+	public Car updateCarDetails(long carId, Car updatedCar) {
+		Car existingCar = carRepository.findById(carId).orElse(null);
 
 		if (existingCar != null) {
-			updatedCar.setCarId(vehicleId);
+			updatedCar.setCarId(carId);
 			Car savedCar = carRepository.save(updatedCar);
 
 			// Prepare email content
@@ -149,13 +163,13 @@ public class CarServiceImpl implements CarService {
 		return null;
 	}
 
-	public void deleteCarById(long vehicleId) {
-		if (carRepository.existsById(vehicleId)) {
-			carRepository.deleteById(vehicleId);
+	public void deleteCarById(long carId) {
+		if (carRepository.existsById(carId)) {
+			carRepository.deleteById(carId);
 
 			// Prepare email content
 			String htmlContent = "<html>" + "<body>" + "<h2>Vehicle Deletion Successful</h2>" + "<p>Dear User,</p>"
-					+ "<p>Your vehicle with ID <strong>" + vehicleId + "</strong> has been deleted from our system.</p>"
+					+ "<p>Your vehicle with ID <strong>" + carId + "</strong> has been deleted from our system.</p>"
 					+ "<img src='cid:carImage' style='width:400px;height:auto;'>"
 					+ "<p>If this action was not intended, please contact our support team immediately.</p>"
 					+ "<p>Thank you for using our services!</p>" + "</body>" + "</html>";
@@ -168,13 +182,13 @@ public class CarServiceImpl implements CarService {
 				System.err.println("Failed to send email: " + e.getMessage());
 			}
 		} else {
-			throw new IllegalArgumentException("Car ID not found: " + vehicleId);
+			throw new IllegalArgumentException("Car ID not found: " + carId);
 		}
 	}
 
-	public Car getCarById(long id) throws InvalidEntityException {
-		return carRepository.findById(id)
-				.orElseThrow(() -> new InvalidEntityException("Car with ID " + id + " not found."));
+	public Car getCarById(long carId) throws InvalidEntityException {
+		return carRepository.findById(carId)
+				.orElseThrow(() -> new InvalidEntityException("Car with ID " + carId + " not found."));
 	}
 
 	public List<Car> getAllBookings() throws NoDataFoundException {

@@ -3,6 +3,7 @@ package com.ccd.service;
 import java.util.List;
 
 import com.ccd.exception.InvalidEntityException;
+import com.ccd.exception.InvalidFieldException;
 import com.ccd.exception.NoDataFoundException;
 import com.ccd.model.Car;
 
@@ -14,7 +15,7 @@ public interface CarService {
 
 	void checkMaintenanceDates(); // Method for checking car maintenance dates
 
-	Car addCar(Car car); // Method for adding a new car
+	public Car addCar(Car car) ; // Method for adding a new car
 
 	List<Car> getAllCars(); // Method for retrieving all cars
 
