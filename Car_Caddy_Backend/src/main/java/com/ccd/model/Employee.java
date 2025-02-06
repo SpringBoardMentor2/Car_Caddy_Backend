@@ -58,10 +58,6 @@ public class Employee {
 	@JsonIgnore
 	private List<Rent_Booking> bookings;
 
-//	@OneToOne(cascade = CascadeType.ALL)
-//	@JoinColumn(name = "car_id")
-//	private Car assignedCar;
-
 	public long getEmployeeId() {
 		return employeeId;
 	}
@@ -150,14 +146,6 @@ public class Employee {
 		this.bookings = bookings;
 	}
 
-//	public Car getAssignedCar() {
-//		return assignedCar;
-//	}
-//
-//	public void setAssignedCar(Car assignedCar) {
-//		this.assignedCar = assignedCar;
-//	}
-
 	public Employee(int employeeId, String employeeName, LocalDate dateOfBirth, String employeeEmail,
 			String accountType, String defaultPassword, String designation, LocalDate accountExpiryDate, String status,
 			List<Rent_Booking> bookings) {// , Car assignedCar
@@ -172,7 +160,6 @@ public class Employee {
 		this.accountExpiryDate = accountExpiryDate;
 		this.status = status;
 		this.bookings = bookings;
-//		this.assignedCar = assignedCar;
 	}
 
 	public Employee() {

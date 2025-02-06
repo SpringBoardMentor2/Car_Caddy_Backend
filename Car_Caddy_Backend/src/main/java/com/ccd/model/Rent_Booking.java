@@ -168,7 +168,6 @@ public class Rent_Booking {
 
 	public Rent_Booking() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 }
